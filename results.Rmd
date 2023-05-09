@@ -1,1 +1,239 @@
-# Results
+---
+title: "Result"
+author: "Zhongyuan Ye"
+date: "2022-12-14"
+output: html_document
+---
+Library Setup: installed all related packages before further analyzing the data.
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(openintro)
+library(ggplot2)
+library(dplyr)
+library(arrow)
+library(tidyr)
+library(tidyverse)
+library(ggalluvial)
+library(patchwork)
+#install.packages("devtools")
+#install.packages("mapproj")
+#install_github('arilamstein/choroplethrZip@v1.3.0')
+library(devtools)
+library(choroplethrZip)
+#install.packages("ggmosaic")
+library(ggmosaic)
+
+# 3.2 Cleaning process
+
+df = read.csv("Electric_Vehicle_Population_Data.csv")
+
+# drop missing values
+df[df==""]<-NA    # replace empty strings to NA
+colSums(is.na(df))
+df = df[!is.na(df$Electric.Utility),]
+df = df[!is.na(df$Model),]
+df = df[!is.na(df$Vehicle.Location),]
+
+drops <- c("VIN..1.10.","DOL.Vehicle.ID", "X2020.Census.Tract")
+df <- df[ , !(names(df) %in% drops)]
+
+df$Vehicle.Location <- gsub("POINT ","",as.character(df$Vehicle.Location))
+df$Vehicle.Location <- gsub("[()]","",df$Vehicle.Location)
+df <- cbind(df, reshape2::colsplit(df$Vehicle.Location, " ", c("Lat", "Long")))
+df <- df[ , !(names(df) %in% c('Vehicle.Location'))]
+
+# modify "`CAFV` eligibility" according to "Electric Range"
+table(df$Clean.Alternative.Fuel.Vehicle..CAFV..Eligibility)
+df[df$Electric.Range == 0, 'Clean.Alternative.Fuel.Vehicle..CAFV..Eligibility'] = "Clean Alternative Fuel Vehicle Eligible"
+
+df <- df[ , !(names(df) %in% c("Base.MSRP"))]
+
+#the analysis in 4.3 will use the raw dataset. Hence, it needs to read the csv again.
+raw = read.csv("Electric_Vehicle_Population_Data.csv")
+```
+
+# 4.0 Before Analyzing:
+1. section 4.1, 4.2 and 4.4 will use the data that cleaning based on section 3.2 (Dataset after cleaning will be named as 'df')
+2. section 4.3 will use the raw data set data, which need to be loaded at the start of the 4.3 (Raw Dataset will be named as 'raw')
+
+# 4.1 Overall Electric Cars Market Analysis for Washington State
+
+
+### Overall Electric Car Market in Washington 
+Showing the count of electric car from 'Model.Years' perspective \
+top-coding: if certain model.Year is below 1000 cars, we classified it as 'Other'
+
+```{r, warning=FALSE, echo = FALSE} 
+df1=df
+df1['Years']=as.character(df1$Model.Year)
+df1=df1  %>% mutate(Years = fct_lump_min(Years, 1000, other_level = "Other"))
+summary(df1$Years)
+```
+
+The table above shows that most car model Years are between 2012-2023, which means that most buyers buy electric cars between 2012 and 2023. Hence, our marketing analysis will focus on the time zone between 2012-2023. \
+
+In the following analysis, we use the Model.Years to represent the time of the buyer buying the car, and add a new column 'Years' for the following analysis to represent the year of buying: 'Years' equal to 'Model.Years'. \
+
+### Overall Electric Car Market Bar Chart:
+
+To further analyze the electric car market based on 'Years', it's important to split it based on other columns. \
+After several attempts, we found out that it's most proper to split the 'Years' data with Electric.Vehicle.Type
+
+**Variable type:**  \
+Model.Year: Discrete Ordinal Categorical Variable  \
+Electric.Vehicle.Type: Nominal Categorical Variable  \
+
+
+**Plot Type:** Bar plot  \
+fill:Electric.Vehicle.Type
+
+```{r, warning=FALSE, echo = FALSE}
+ggplot(data=df, aes(x=Model.Year, fill=Electric.Vehicle.Type))+
+  geom_bar(stat="count")+xlim(2010,2025)+xlab("Years")+
+  ylab("Number of Electric Cars")+
+  labs(title = "Overall Market Analysis")
+```
+
+
+From the plot above, the market size of electric cars is continuously growing from 2012 to 2022, except in 2014 and 2019. The proportion of PHEV cars in all new electric cars are high in 2012,2014, and 2018. However, BEV cars dominated the Electric Vehicle market every year between 2012 to 2022. For 2022, more than 75% of the buyer buying BEV cars.
+
+There are two major decreases in the Electric car market: 2014 and 2019. However, the two decreases is different:  \n
+2014: the BEV amount is decreasing compared to 2013, but the PHEV amount is increasing compared to 2-13 \n
+2019: Both BEV and PHEV amounts are decreasing compared to 2017
+
+# 4.2 Brand-Based Electric Cars Market Analysis for Washington State
+Before analyzing the market share of each brand, our team will analyze the absolute Electric car selling data of each brand in Washington State. \
+
+**Variable type:** \
+Brand: Nominal Categorical Variable \
+Electric.Vehicle.Type: Nominal Categorical Variable \
+
+\
+**Plot Type:** Cleveland dot plot \
+fill: Electric.Vehicle.Type \
+Order: BEV
+
+```{r, warning=FALSE, echo = FALSE}
+Make_count <- df %>%
+  mutate(Make = fct_lump_n(Make, 50, other_level = "NAMED OTHER")) %>%
+  group_by(Make, Electric.Vehicle.Type)  %>%
+  count()
+Make_count %>%
+  ggplot(aes(n, fct_reorder2(Make, Electric.Vehicle.Type=="Battery Electric Vehicle (BEV)", n, .desc = FALSE), color = Electric.Vehicle.Type)) +
+  geom_point(size = 1) +
+  ylab("") +
+  guides(color = guide_legend(reverse = TRUE)) +
+  theme(legend.position = "top") + 
+  ggtitle("Count of Electric Car Selling Data in WA BEV/PHEV Market")
+```
+
+We can observe from the plot that TESLA has the highest count in WA registered electric vehicles among all manufacturers, which is over 50,000 among 112,152 registered cars. The top five Battery Electric Vehicle manufacturers are TESLA, NISSAN, CHEVROLET, KIA, and VOLKSWAGEN. We can also observe that Battery Electric Vehicles count most registered battery vehicles. \
+
+
+### Bar plot of Car-Type And Brand Market Analysis
+To further analyze the market, it's important to analyze the raw data based on the brand. \
+Due to too many brands involving the electric car market, we are only tracking the brand that sold at least 3000 cars before in Washington State. \
+\
+**Variable type:**\
+Brand : Nominal Categorical Variable \
+Model.Year: Discrete Ordinal Categorical Variable \
+Electric.Vehicle.Type: Nominal Categorical Variable \
+
+\
+**Plot Type:** Bar plot \
+fill: Brand \
+Facet: Electric.Vehicle.Type
+
+```{r, warning=FALSE, echo = FALSE}
+df1= df1 %>% mutate(Brand = fct_lump_min(Make, 3000, other_level = "Other"))
+ggplot(data=df1, aes(x=Model.Year, fill=Brand))+ geom_bar(stat="count")+
+  xlim(2010,2024)+ facet_grid(. ~Electric.Vehicle.Type )+xlab("Years")+ylab("Number of Electric Cars")+
+  labs(title = "Car-Type And Brand Market Analysis")
+  
+```
+
+From the graph above, \
+1. There are only 7 brands that sold more than 3000 cars in Washington State: BMW, CHEVROLET, FORD, KIA, NISSAN, TESLA, and TOYOTA \
+2. For the BEV market, NISSAN dominated the market from 2011 to 2015, and Tesla dominated the market from 2016 to 2022. \
+3. For the PHEV market, the market is more diverse: there doesn't have a dominant brand PHEV market. \
+4. Tesla dramatically increase its sales in Washington State from 2015 to 2022, and has become the largest brand in the market since 2018. In 2022, Tesla is owned more than 50% market share in the BEV market. \
+5. NISSAN used to dominate the BEV market from 2011 to 2015. However, its annual sales never exceed 5000 cars. In 2022, its market share will be less than 10% in the BEV market. \
+6. CHEVROLET used to be the largest player in the PHEV market(2012, 2013, 2013, 2017, 2018). However, its market share in PHEV almost disappears after 2018. In contrast, it becomes a Top 5 player in the BEV market from 2017 to 2022. \
+7. The No.5 BEV market brand: VOLKSWAGEN, doesn't sell more than 3000 cars in Washington State
+
+### Alluvial Graph with Brand, Years, and Electric.Vehicle.Type
+To further analyze the composition of each brand's year-based selling details, our team used an Alluvial graph to visualize the relationship between Brand, Years, and Electric.Vehicle.Type. 
+
+**Variable type:** \
+Brand : Nominal Categorical Variable \
+Model.Year: Discrete Ordinal Categorical Variable \
+Electric.Vehicle.Type: Nominal Categorical Variable \
+
+\
+**Plot Type:** Alluvial Graph \
+fill: Electric.Vehicle.Type \
+
+```{r, warning=FALSE, message=FALSE, results='hide', echo = FALSE}
+df2= df1 %>% mutate( Modi_Year= fct_lump_min(Years, 3000, other_level = "Other"))
+df2["Brand"]= as.character(df2$Brand)
+df2["Brand"][df2["Brand"] == "CHEVROLET"] = 
+  "CHEVY"
+df2=df2 %>% mutate(Brand = fct_lump_min(Brand, 3000, other_level = "Other"))
+df2["Clean.Alternative.Fuel.Vehicle..CAFV..Eligibility"][df2[
+  "Clean.Alternative.Fuel.Vehicle..CAFV..Eligibility"]==
+  "Clean Alternative Fuel Vehicle Eligible"]= "Eligible"
+df2["Clean.Alternative.Fuel.Vehicle..CAFV..Eligibility"][df2[
+  "Clean.Alternative.Fuel.Vehicle..CAFV..Eligibility"]==
+  "Not eligible due to low battery range"]= "No"
+df3=df2 %>%
+  filter(Modi_Year != 'Other') %>%
+  group_by(Electric.Vehicle.Type, Brand, Clean.Alternative.Fuel.Vehicle..CAFV..Eligibility,
+           Modi_Year) %>%
+  summarise(Freq = n())
+df3["Electric.Vehicle.Type"][df3["Electric.Vehicle.Type"] ==
+                               "Battery Electric Vehicle (BEV)"] = 
+  "BEV"
+df3["Electric.Vehicle.Type"][df3["Electric.Vehicle.Type"] ==
+                               "Plug-in Hybrid Electric Vehicle (PHEV)"] = 
+  "PHEV"
+
+ggplot(data = df3,
+       aes(axis1 = Brand,
+           axis2=Modi_Year,
+           axis3=Electric.Vehicle.Type,
+           y = Freq)) +
+  geom_alluvium(aes(fill = Electric.Vehicle.Type)) +
+  geom_stratum() + geom_text(stat = "stratum",aes(label=after_stat(stratum)))+
+  scale_x_continuous(breaks=1:3, labels=c("Brand","Years","Car Type"))+
+  labs(title = "Brand-based Market Analysis", caption = "CHEVY stand for Chevrolet")
+
+```
+
+From the graph above: \
+1. Three brands focus only on BEV cars: Tesla, Kia, and Nissan. \
+2. Two brands are almost focusing only on PHEV cars: Toyota, and BMW. \
+3. Ford focused only on PHEV cars from 2013 to 2017, and began to focus only on BEV cars from 2018 to 2022. \
+4. Chevrolet mainly sold PHEV cars from 2013 to 2017, but switched to mainly selling BEV cars from 2017 to 2022. \
+
+
+# 4.3 Geographic-Based Analysis for Electric Cars in Washington State
+In the last part of the 'Result' Section, our team analyzes the distribution of electric cars in Washington State based on their geographic location: 'Postal.Code' Column. \
+The following graph uses the Nominal Categorical variable: 'Postal.Code' to draw the Choropleth map
+
+```{r, warning=FALSE, message=FALSE, results='hide', echo = FALSE}
+
+zip <- aggregate(data.frame(count=df$Postal.Code),list(df$Postal.Code),length)
+colnames(zip) <- c('region','value')
+zip$region = as.character(zip$region)
+
+zip_choropleth(zip, state_zoom = "washington",
+               title    = "WA Electric Car Geographical Distribution",
+               legend   = "Population") + coord_map()
+```
+
+
+We compare the electric vehicle density map and Washington state regional map; we identify the regions where most electric vehicles are distributed: King, Pierce, Thurston, Kitsap, Mason, Whatcom, Clark, and Cowlitz. 
+[(region map reference)](https://en.wikipedia.org/wiki/List_of_counties_in_Washington)
+
+
+
