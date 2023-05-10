@@ -15,5 +15,4 @@ brand-based-electric-cars-market-analysis-for-washington-state
 bar-plot-of-car-type-and-brand-market-analysis
 alluvial-graph-with-brand-years-and-electric.vehicle.type
 geographic-based-analysis-for-electric-cars-in-washington-state
-interactive-component
 conclusion
