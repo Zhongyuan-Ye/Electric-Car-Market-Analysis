@@ -1,5 +1,5 @@
 --- 
-title: "Electric Car Market Analysis"
+title: "Analysis of the Washington State Electric Car Market"
 author: "Zhongyuan Ye, Shuyu He, Yaohong Liang"
 date: "2022-12-15"
 site: bookdown::bookdown_site
