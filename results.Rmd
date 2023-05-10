@@ -51,8 +51,8 @@ raw = read.csv("Electric_Vehicle_Population_Data.csv")
 # Result
 
 ## Before Analyzing:
-1. section 4.1, 4.2 and 4.4 will use the data that cleaning based on section 3.2 (Dataset after cleaning will be named as 'df')
-2. section 4.3 will use the raw data set data, which need to be loaded at the start of the 4.3 (Raw Dataset will be named as 'raw')
+Section 4.2, 4.3 and 4.4 will use the data that cleaning based on section 3.2 (Dataset after cleaning will be named as 'df')
+
 
 ## Overall Electric Cars Market Analysis for Washington State
 
