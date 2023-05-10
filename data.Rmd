@@ -30,42 +30,6 @@ Columns with missing value: `Legislative.District`, `Electric Range`, and `Base 
 **Update Frequency: **  Our team is monitoring the data update of this dataset and found out that the newest update is on December 8, 2022. The time of latest update before the newest update is on October 14, 2022. (the data our team used to write the proposal) Hence, our team infers that the frequency of the update for this data set is 2 months.  \
 
 
-\
-**Column Meaning & Variable Type Details: ** \
-Vin: 10-character ID of each electric Vehicle in Washington State. (Data Type: Text, Variable Type: Nominal Categorical Variable)
-
-Country:The country where the vehicle owner resides. (Data Type: Text, Variable Type: Nominal Categorical Variable)
-
-City: The country where the vehicle owner resides. (Data Type: Text, Variable Type: Nominal Categorical Variable)
-
-State: The State where the vehicle owner resides. (Data Type: Text, Variable Type: Nominal Categorical Variable)
-
-Postal Code: The 5-digit zip code where the vehicle owner resides. (Data Type: Text, Variable Type: Nominal Categorical Variable)
-
-Model Year: The model year of the electric vehicle (Data Type: Text, Variable Type: Discrete Ordinal Categorical Variable)
-
-Make: The manufacturer of the vehicle. (Data Type: Text, Variable Type: Nominal Categorical Variable)
-
-Model: The model of the Vehicle (Data Type: Text, Variable Type: Nominal Categorical Variable)
-
-Electric Vehicle Type: The type of the electric vehicle, all-electric or plug-in hybrid. (Data Type: Text, Variable Type: Nominal Categorical Variable)
-
-Clean Alternative Fuel Vehicle Eligibility: whether the vehicle is eligible for the ‘Clean Alternative Fuel Vehicle’ (Data Type: Text, Variable Type: Nominal Categorical Variable)
-
-Electric Range: how far a vehicle can travel purely on its electric charge (Data Type: Number, Variable Type: Quantitative Variable)
-
-Base MSRP: the lowest manufacturer’s suggested retail price (Data Type: Number, Variable Type: Quantitative Variable)
-
-Legislative District: Specific section of Washington State where the vehicle’s owner resides. (Data Type: Number, Variable Type: Nominal Categorical Variable)
-
-DOL Vehicle ID: Unique number of each vehicle assigned by the Washington State Department of Licensing (Data Type: Text, Variable Type: Nominal Categorical Variable)
-
-Vehicle Location: The center of the ZIP code for the registered Vehicle (Data Type: Point, Variable Type: Quantitative Variable)
-
-Electric Utility: this is the electric power retail service territory serving the address of the registered vehicle. (Data Type: Text, Variable Type: Nominal Categorical Variable)
-
-2020 Census Tract: Combination of the State, country, and the census tract code (Data Type: Text, Variable Type: Nominal Categorical Variable)
-
 ## Cleaning / transformation
 
 ```{r, include=FALSE}
