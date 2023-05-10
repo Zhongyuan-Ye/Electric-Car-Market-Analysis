@@ -1,9 +1,4 @@
----
-title: "Result"
-author: "Zhongyuan Ye"
-date: "2022-12-14"
-output: html_document
----
+
 Library Setup: installed all related packages before further analyzing the data.
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -52,11 +47,14 @@ df <- df[ , !(names(df) %in% c("Base.MSRP"))]
 raw = read.csv("Electric_Vehicle_Population_Data.csv")
 ```
 
-# 4.0 Before Analyzing:
+
+# Result
+
+## Before Analyzing:
 1. section 4.1, 4.2 and 4.4 will use the data that cleaning based on section 3.2 (Dataset after cleaning will be named as 'df')
 2. section 4.3 will use the raw data set data, which need to be loaded at the start of the 4.3 (Raw Dataset will be named as 'raw')
 
-# 4.1 Overall Electric Cars Market Analysis for Washington State
+## Overall Electric Cars Market Analysis for Washington State
 
 
 ### Overall Electric Car Market in Washington 
@@ -101,7 +99,7 @@ There are two major decreases in the Electric car market: 2014 and 2019. However
 2014: the BEV amount is decreasing compared to 2013, but the PHEV amount is increasing compared to 2-13 \n
 2019: Both BEV and PHEV amounts are decreasing compared to 2017
 
-# 4.2 Brand-Based Electric Cars Market Analysis for Washington State
+## Brand-Based Electric Cars Market Analysis for Washington State
 Before analyzing the market share of each brand, our team will analyze the absolute Electric car selling data of each brand in Washington State. \
 
 **Variable type:** \
@@ -216,7 +214,7 @@ From the graph above: \
 4. Chevrolet mainly sold PHEV cars from 2013 to 2017, but switched to mainly selling BEV cars from 2017 to 2022. \
 
 
-# 4.3 Geographic-Based Analysis for Electric Cars in Washington State
+## Geographic-Based Analysis for Electric Cars in Washington State
 In the last part of the 'Result' Section, our team analyzes the distribution of electric cars in Washington State based on their geographic location: 'Postal.Code' Column. \
 The following graph uses the Nominal Categorical variable: 'Postal.Code' to draw the Choropleth map
 
