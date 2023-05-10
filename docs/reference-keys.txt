@@ -6,6 +6,14 @@ data
 sources
 cleaning-transformation
 missing-value-analysis
-results
+result
+before-analyzing
+overall-electric-cars-market-analysis-for-washington-state
+overall-electric-car-market-in-washington
+overall-electric-car-market-bar-chart
+brand-based-electric-cars-market-analysis-for-washington-state
+bar-plot-of-car-type-and-brand-market-analysis
+alluvial-graph-with-brand-years-and-electric.vehicle.type
+geographic-based-analysis-for-electric-cars-in-washington-state
 interactive-component
 conclusion
